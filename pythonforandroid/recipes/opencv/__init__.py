@@ -130,6 +130,7 @@ class OpenCVRecipe(NDKRecipe):
                     '-DPYTHON{major}_PACKAGES_PATH={site_packages}'.format(
                         major=python_major, site_packages=python_site_packages),
                     #FORCE to link with ZLIb for android  :https://github.com/opencv/opencv/issues/15521
+                    #If android NDK Version >=R18 : add options
                     '-DBUILD_ZLIB=ON',
 
                     *opencv_extras,
