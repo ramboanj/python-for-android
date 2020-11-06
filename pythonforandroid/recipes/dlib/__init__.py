@@ -27,7 +27,7 @@ class DlibRecipe(CppCompiledComponentsPythonRecipe):
         shprint(sh.mkdir, '-p', build_dir)
         with current_directory(build_dir):
             env = self.get_recipe_env(arch)
-
+            
             python_major = self.ctx.python_recipe.version[0]
             python_include_root = self.ctx.python_recipe.include_root(arch.arch)
             python_site_packages = self.ctx.get_site_packages_dir()
@@ -101,14 +101,13 @@ class DlibRecipe(CppCompiledComponentsPythonRecipe):
                         major=python_major, numpy_include=python_include_numpy),
                     '-DPYTHON{major}_PACKAGES_PATH={site_packages}'.format(
                         major=python_major, site_packages=python_site_packages),
-
-
                     self.get_build_dir(arch.arch),
                     _env=env)
+                    '-DCMAKE_LIBRARY_OUTPUT_DIRECTORY={output}'.format(output=build_dir)
             # Install python bindings (dlib.so)
             shprint(sh.cmake, '-DCOMPONENT=python', '-P', './cmake_install.cmake')
             # Copy third party shared libs that we need in our final apk
             sh.cp('-a', sh.glob('./lib/{}/lib*.so'.format(arch.arch)),
-            #self.ctx.get_libs_dir(arch.arch))
+            self.ctx.get_libs_dir(arch.arch))
 
 recipe = DlibRecipe()
