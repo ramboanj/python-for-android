@@ -108,7 +108,7 @@ class DlibRecipe(CppCompiledComponentsPythonRecipe):
             # Install python bindings (dlib.so)
             shprint(sh.cmake, '-DCOMPONENT=python', '-P', './cmake_install.cmake')
             # Copy third party shared libs that we need in our final apk
-            #sh.cp('-a', sh.glob('./lib/{}/lib*.so'.format(arch.arch)),
-             #     self.ctx.get_libs_dir(arch.arch))
+            sh.cp('-a', sh.glob('./lib/{}/lib*.so'.format(arch.arch)),
+            self.ctx.get_libs_dir(arch.arch))
 
 recipe = DlibRecipe()
