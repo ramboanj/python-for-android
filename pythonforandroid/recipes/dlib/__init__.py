@@ -10,7 +10,7 @@ class DlibRecipe(CppCompiledComponentsPythonRecipe):
     site_packages_name = 'dlib'
     version = '19.17'
     url = 'http://dlib.net/files/dlib-{version}.zip'
-    depends = ['opencv','numpy','cmake']
+    depends = ['numpy','cmake']
     call_hostpython_via_targetpython = False
 
     def get_lib_dir(self, arch):
@@ -41,15 +41,17 @@ class DlibRecipe(CppCompiledComponentsPythonRecipe):
                                         'numpy', 'core', 'include')
             python_include_opencv = join(python_site_packages,
                                         'opencv', 'core', 'include')
-
-
+            #Create a libçdir to put building 
+            lib_dir = join(build_dir,"lib")
+            shprint(sh.mkdir, '-p', lib_dir)            
             shprint(sh.cmake,
-                    '-DP4A=ON',
+                    #execute CMake in Tools/Python to build
+                    '{python}'.format(python=join(self.get_build_dir(arch.arch), 'tools/python')),
+                    '-DP4A=ON' ,
                     '-DANDROID_ABI={}'.format(arch.arch),
                     '-DANDROID_STANDALONE_TOOLCHAIN={}'.format(self.ctx.ndk_dir),
                     '-DANDROID_NATIVE_API_LEVEL={}'.format(self.ctx.ndk_api),
                     '-DANDROID_EXECUTABLE={}/tools/android'.format(env['ANDROID_SDK']),
-
                     '-DCMAKE_TOOLCHAIN_FILE={}'.format(
                         join(self.ctx.ndk_dir, 'build', 'cmake',
                              'android.toolchain.cmake')),
@@ -76,7 +78,9 @@ class DlibRecipe(CppCompiledComponentsPythonRecipe):
                     '-DENABLE_TESTING=OFF',
                     '-DBUILD_EXAMPLES=OFF',
                     '-DBUILD_ANDROID_EXAMPLES=OFF',
-
+                    '-DBUILD_ANDROID_EXAMPLES=OFF',
+                    # Create sub-directory into build to ouput it
+                    '-DCMAKE_LIBRARY_OUTPUT_DIRECTORY={output}'.format(output=lib_dir),
                     # Force to only build our version of python
                     '-DBUILD_DLIB_PYTHON{major}=ON'.format(major=python_major),
                     '-DBUILD_DLIB_PYTHON{major}=OFF'.format(
@@ -102,10 +106,10 @@ class DlibRecipe(CppCompiledComponentsPythonRecipe):
                     '-DPYTHON{major}_PACKAGES_PATH={site_packages}'.format(
                         major=python_major, site_packages=python_site_packages),
                     self.get_build_dir(arch.arch),
-                    _env=env)
-                    '-DCMAKE_LIBRARY_OUTPUT_DIRECTORY={output}'.format(output=build_dir)
+                    _env=env),
+
             # Install python bindings (dlib.so)
-#            shprint(sh.cmake, '-DCOMPONENT=python', '-P', './cmake_install.cmake')
+#            shprint(sh.cmake, '-DCOMPONENT=python', '-P', './')
             # Copy third party shared libs that we need in our final apk
 #            sh.cp('-a', sh.glob('./lib/{}/lib*.so'.format(arch.arch)),self.ctx.get_libs_dir(arch.arch))
 
