@@ -47,6 +47,10 @@ class DlibRecipe(CppCompiledComponentsPythonRecipe):
             shprint(sh.cmake,
                     #execute CMake in Tools/Python to build
                     '{python}'.format(python=join(self.get_build_dir(arch.arch), 'tools/python')),
+                    #Type build = Release
+                    '-DCMAKE_BUILD_TYPE=Release',
+                    # Create sub-directory into build to ouput it
+                    '-DCMAKE_LIBRARY_OUTPUT_DIRECTORY={output}'.format(output=lib_dir),
                     '-DP4A=ON' ,
                     '-DANDROID_ABI={}'.format(arch.arch),
                     '-DANDROID_STANDALONE_TOOLCHAIN={}'.format(self.ctx.ndk_dir),
@@ -66,10 +70,10 @@ class DlibRecipe(CppCompiledComponentsPythonRecipe):
                     # libs or we will not be able to link with our python
                     '-DBUILD_SHARED_LIBS=OFF',
                     '-DBUILD_STATIC_LIBS=ON',
-
+                                        
                     # Disable some dlib's features
-                    '-DBUILD_dlib_java=OFF',
-                    '-DBUILD_dlib_java_bindings_generator=OFF',
+#                    '-DBUILD_dlib_java=OFF',
+#                    '-DBUILD_dlib_java_bindings_generator=OFF',
                     # '-DBUILD_dlib_highgui=OFF',
                     # '-DBUILD_dlib_imgproc=OFF',
                     # '-DBUILD_dlib_flann=OFF',
@@ -79,8 +83,7 @@ class DlibRecipe(CppCompiledComponentsPythonRecipe):
                     '-DBUILD_EXAMPLES=OFF',
                     '-DBUILD_ANDROID_EXAMPLES=OFF',
                     '-DBUILD_ANDROID_EXAMPLES=OFF',
-                    # Create sub-directory into build to ouput it
-                    '-DCMAKE_LIBRARY_OUTPUT_DIRECTORY={output}'.format(output=lib_dir),
+
                     # Force to only build our version of python
                     '-DBUILD_DLIB_PYTHON{major}=ON'.format(major=python_major),
                     '-DBUILD_DLIB_PYTHON{major}=OFF'.format(
@@ -108,10 +111,15 @@ class DlibRecipe(CppCompiledComponentsPythonRecipe):
                     self.get_build_dir(arch.arch),
                     _env=env),
 
+            #
             # Install python bindings (dlib.so)
-#            shprint(sh.cmake, '-DCOMPONENT=python', '-P', './')
+
+
+            
+            shprint(sh.cmake,'--build', './'  , '--config','RELEASE','--')
             # Copy third party shared libs that we need in our final apk
 #            
             sh.cp('-a', sh.glob('./{}/*.so'.format(lib_dir))  ,self.ctx.get_libs_dir(arch.arch))
+
 
 recipe = DlibRecipe()
