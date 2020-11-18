@@ -24,6 +24,7 @@ class DlibRecipe(CppCompiledComponentsPythonRecipe):
         return env
 
     def build_arch(self, arch):
+        super().build_arch(arch);
         build_dir = join(self.get_build_dir(arch.arch), 'build')
         shprint(sh.mkdir, '-p', build_dir)
         with current_directory(build_dir):
