@@ -12,7 +12,7 @@ class DlibRecipe(CppCompiledComponentsPythonRecipe):
     site_packages_name = 'dlib'
     version = '19.17'
     url = 'http://dlib.net/files/dlib-{version}.zip'
-    depends = ['python3','cmake','setuptools','numpy','virtualenv']
+    depends = ['python3','cmake','setuptools','numpy','clang']
     setup_extra_args = []
 
     
