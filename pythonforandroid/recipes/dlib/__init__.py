@@ -14,7 +14,7 @@ class DlibRecipe(CppCompiledComponentsPythonRecipe):
     site_packages_name = 'dlib'
     version = '19.17'
     url = 'http://dlib.net/files/dlib-{version}.zip'
-    depends = ['python3','scipy','scikit-image','numpy','boost']
+    depends = ['python3','numpy','boost']
 
 #    built_libraries = {"*.so" : "build/lib.dlib"}
 
@@ -221,6 +221,6 @@ class DlibRecipe(CppCompiledComponentsPythonRecipe):
 
             super().build_arch(arch)
             sh.cp('-a', sh.glob('{}/*.so'.format(lib_dir))  ,self.ctx.get_libs_dir(arch.arch))     
-
+            self.setup_extra_args.clear()#After finished compiled ,remove all setup
             
 recipe = DlibRecipe()
