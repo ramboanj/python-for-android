@@ -10,7 +10,7 @@ from pythonforandroid.logger import (logger, info, warning, debug, shprint, info
 
 
 
-class DlibRecipe(PythonRecipe):
+class DlibRecipe(CppCompiledComponentsPythonRecipe):
     site_packages_name = 'dlib'
     version = '19.17'
     url = 'http://dlib.net/files/dlib-{version}.zip'
