@@ -14,12 +14,13 @@ class DlibRecipe(CppCompiledComponentsPythonRecipe):
     site_packages_name = 'dlib'
     version = '19.17'
     url = 'http://dlib.net/files/dlib-{version}.zip'
-    depends = ['python3','numpy','boost','scipy']
+    depends = ['python3','numpy','boost','cmake']
 
     built_libraries = {"*.so" : "build/lib.dlib"}
 
 
     
+
     def get_recipe_env(self, arch):
         env = super(DlibRecipe, self).get_recipe_env(arch)
         
@@ -77,16 +78,16 @@ class DlibRecipe(CppCompiledComponentsPythonRecipe):
 #                     "-D ANDROID_STANDALONE_TOOLCHAIN={}".format(self.ctx.ndk_dir),       
 #                     "-D ANDROID_NATIVE_API_LEVEL={}".format(self.ctx.ndk_api),           
 #                     "-D ANDROID_EXECUTABLE={}/tools/android".format(env["ANDROID_SDK"]), 
-                      "-D CMAKE_TOOLCHAIN_FILE={}".format(                                 
-                         join(self.ctx.ndk_dir, "build", "cmake",                         
-                              "android.toolchain.cmake")),                                
+#                      "-D CMAKE_TOOLCHAIN_FILE={}".format(                                 
+#                         join(self.ctx.ndk_dir, "build", "cmake",                         
+#                              "android.toolchain.cmake")),                                
  #                    # Make the linkage with our python library, otherwise we             
  #                    # will get dlopen error when trying to import dlib"s module.         
-                      "-D CMAKE_SHARED_LINKER_FLAGS=-L{path} -lpython{version}".format(   
-                          path=python_link_root,                                          
-                          version=python_link_version),                                   
+#                      "-D CMAKE_SHARED_LINKER_FLAGS=-L{path} -lpython{version}".format(   
+#                          path=python_link_root,                                          
+#                          version=python_link_version),                                   
                                                                                          
-                      "-D BUILD_WITH_STANDALONE_TOOLCHAIN=ON",                             
+#                     "-D BUILD_WITH_STANDALONE_TOOLCHAIN=ON",                             
  #                    # Force to build as shared libraries the dlib"s dependant            
  #                    # libs or we will not be able to link with our python                
                       "-D BUILD_SHARED_LIBS=ON",                                           
@@ -98,7 +99,7 @@ class DlibRecipe(CppCompiledComponentsPythonRecipe):
  #                    # "-D BUILD_dlib_highgui=OFF",                                       
  #                    # "-D BUILD_dlib_imgproc=OFF",                                       
  #                    # "-D BUILD_dlib_flann=OFF",                                         
- #                    "-D BUILD_TESTS=OFF",                                                
+                      "-D BUILD_TESTS=OFF",                                                
  #                    "-D BUILD_PERF_TESTS=OFF",                                           
  #                    "-D ENABLE_TESTING=OFF",                                             
  #                    "-D BUILD_EXAMPLES=OFF",                                             
@@ -125,7 +126,7 @@ class DlibRecipe(CppCompiledComponentsPythonRecipe):
                          host_python=self.ctx.hostpython),                               
                     "-D PYTHON_INCLUDE_DIRS={include_path}".format(                      
                          include_path=python_include_root),                              
-                    "-D PYTHON_LIBRARY={python_lib}".format(                             
+                    "-D PYTHON_LIBRARIES={python_lib}".format(                             
                          python_lib=python_library),                                     
                     "-D PYTHON_NUMPY_INCLUDE_DIRS={numpy_include}".format(               
                          numpy_include=python_include_numpy),                            
