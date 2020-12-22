@@ -16,7 +16,7 @@ class DlibRecipe(CppCompiledComponentsPythonRecipe):
     url = 'http://dlib.net/files/dlib-{version}.zip'
     depends = ['python3','numpy','boost','cmake']
 
-    built_libraries = {"*.so" : "build/lib.dlib"}
+#    built_libraries = {"*.so" : "build/lib.dlib"}
 
 
     
@@ -78,7 +78,7 @@ class DlibRecipe(CppCompiledComponentsPythonRecipe):
 #                     "-D ANDROID_STANDALONE_TOOLCHAIN={}".format(self.ctx.ndk_dir),       
 #                     "-D ANDROID_NATIVE_API_LEVEL={}".format(self.ctx.ndk_api),           
 #                     "-D ANDROID_EXECUTABLE={}/tools/android".format(env["ANDROID_SDK"]), 
-#                      "-D CMAKE_TOOLCHAIN_FILE={}".format(                                 
+#                     "-D CMAKE_TOOLCHAIN_FILE={}".format(                                 
 #                         join(self.ctx.ndk_dir, "build", "cmake",                         
 #                              "android.toolchain.cmake")),                                
  #                    # Make the linkage with our python library, otherwise we             
@@ -100,8 +100,8 @@ class DlibRecipe(CppCompiledComponentsPythonRecipe):
  #                    # "-D BUILD_dlib_imgproc=OFF",                                       
  #                    # "-D BUILD_dlib_flann=OFF",                                         
                       "-D BUILD_TESTS=OFF",                                                
- #                    "-D BUILD_PERF_TESTS=OFF",                                           
- #                    "-D ENABLE_TESTING=OFF",                                             
+                      "-D BUILD_PERF_TESTS=OFF",                                           
+                      "-D ENABLE_TESTING=OFF",                                             
  #                    "-D BUILD_EXAMPLES=OFF",                                             
  #                    "-D BUILD_ANDROID_EXAMPLES=OFF",                                     
  #                    "-D BUILD_ANDROID_EXAMPLES=OFF",                                     
