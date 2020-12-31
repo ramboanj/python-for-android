@@ -14,9 +14,9 @@ class DlibRecipe(CppCompiledComponentsPythonRecipe):
     site_packages_name = 'dlib'
     version = '19.17'
     url = 'http://dlib.net/files/dlib-{version}.zip'
-    depends = ['python3','numpy','scipy','opencv']
+    depends = ['numpy','scipy','setuptools']
 
-#    built_libraries = {"*.so" : "build/lib.dlib"}
+    built_libraries = {"libdlib.so" : "build/lib.dlib"}
 
 
     
@@ -47,6 +47,7 @@ class DlibRecipe(CppCompiledComponentsPythonRecipe):
 
         
     def build_arch(self, arch):
+#        super().build_arch(arch);
         build_dir = join(self.get_build_dir(arch.arch), 'build')
         shprint(sh.mkdir, '-p', build_dir)
         with current_directory(build_dir):
@@ -66,7 +67,7 @@ class DlibRecipe(CppCompiledComponentsPythonRecipe):
             python_include_opencv = join(python_site_packages,
                                              'opencv', 'core', 'include')
                 #Create a libçdir to put building 
-            lib_dir = join(build_dir,"lib")
+            lib_dir = join(build_dir,"lib.dlib")
 
             info("Create "+lib_dir)                                                   
             shprint(sh.mkdir, '-p', lib_dir)
@@ -101,9 +102,6 @@ class DlibRecipe(CppCompiledComponentsPythonRecipe):
                     # Disable some dlib's features                                                 
                     '-DBUILD_dlib_java=OFF',                                                       
                     '-DBUILD_dlib_java_bindings_generator=OFF',                                    
-                    # '-DBUILD_dlib_highgui=OFF',                                                  
-                    # '-DBUILD_dlib_imgproc=OFF',                                                  
-                    # '-DBUILD_dlib_flann=OFF',                                                    
                     '-DBUILD_TESTS=OFF',                                                           
                     '-DBUILD_PERF_TESTS=OFF',                                                      
                     '-DENABLE_TESTING=OFF',                                                        
