@@ -1,116 +1,83 @@
-Seulement dans dlib/: build
-Les sous-répertoires dlib/dlib et current/dlib-master/dlib sont identiques
-Les sous-répertoires dlib/docs et current/dlib-master/docs sont identiques
-Seulement dans dlib/: example.log
-Les sous-répertoires dlib/examples et current/dlib-master/examples sont identiques
-diff -u dlib/.gitignore current/dlib-master/.gitignore
---- dlib/.gitignore	2021-01-14 14:56:42.211284136 +0100
-+++ current/dlib-master/.gitignore	2021-01-17 19:22:06.000000000 +0100
-@@ -15,4 +15,4 @@
+diff --git a/.gitignore b/.gitignore
+index 118d33ef..d7c2618a 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -15,4 +15,4 @@ docs/docs/cache/
  docs/docs/git-logs.xml
  docs/docs/python/classes.txt
  docs/docs/python/functions.txt
--
-+docs/docs/python/constants.txt
-Seulement dans current/dlib-master/: LICENSE.txt
-Les sous-répertoires dlib/python_examples et current/dlib-master/python_examples sont identiques
-diff -u dlib/setup.py current/dlib-master/setup.py
---- dlib/setup.py	2021-01-16 10:33:22.947829558 +0100
-+++ current/dlib-master/setup.py	2021-01-17 19:22:06.000000000 +0100
-@@ -43,13 +43,6 @@
+-docs/docs/python/constants.txt
++
+diff --git a/setup.py b/setup.py
+index 8e433098..e750fcf4 100644
+--- a/setup.py
++++ b/setup.py
+@@ -43,6 +43,14 @@ from setuptools import setup, Extension
  from setuptools.command.build_ext import build_ext
  from distutils.version import LooseVersion
  
--# Example:CMAKE_LIBRARY_OUTPUT_DIRECTORY=#os.path.abspath("build/libdlib")
--# "CMAKE_TEMP_OUTPUT_DIRECTORY"os.path.abspath("build/tempdlib")
--switcher={
--    "PYTHON_EXECUTABLE":sys.executable,
--    "CMAKE_LIBRARY_OUTPUT_DIRECTORY":None,
--    "CMAKE_TEMP_OUTPUT_DIRECTORY":None
--}
++# Example:CMAKE_LIBRARY_OUTPUT_DIRECTORY=#os.path.abspath("build/libdlib")
++# "CMAKE_TEMP_OUTPUT_DIRECTORY"os.path.abspath("build/tempdlib")
++switcher={
++    "PYTHON_EXECUTABLE":sys.executable,
++    "CMAKE_LIBRARY_OUTPUT_DIRECTORY":None,
++    "CMAKE_TEMP_OUTPUT_DIRECTORY":None
++}
++
  
  def get_extra_cmake_options():
      """read --clean, --no, --set, --compiler-flags, and -G options from the command line and add them as cmake switches.
-@@ -70,12 +63,6 @@
+@@ -63,7 +71,15 @@ def get_extra_cmake_options():
              _cmake_extra_options.append('-D{arg}=no'.format(arg=arg.strip()))
          elif opt_key == 'set':
              _cmake_extra_options.append('-D{arg}'.format(arg=arg.strip()))
--        elif opt_key == 'opt':
--            optPy=arg.strip()
--            print("OPTION=",optPy)
--            separate=optPy.split("=")
--            switcher[separate[0]]=' '.join(separate[1:])
--            print(separate[0],"=",' '.join(separate[1:]))
++        elif opt_key == 'opt':
++            optPy=arg.strip()
++            print("OPTION=",optPy)
++            separate=optPy.split("=")
++            switcher[separate[0]]=' '.join(separate[1:])
++            print(separate[0],"=",' '.join(separate[1:]))
++
  
++            
          if opt_key:
              sys.argv.remove(arg)
-@@ -91,7 +78,7 @@
+             opt_key = None
+@@ -78,7 +94,7 @@ def get_extra_cmake_options():
              print("The --yes options to dlib's setup.py don't do anything since all these options ")
              print("are on by default.  So --yes has been removed.  Do not give it to setup.py.")
              sys.exit(1)
--        if arg in ['--no', '--set','--opt','--compiler-flags']:
-+        if arg in ['--no', '--set', '--compiler-flags']:
+-        if arg in ['--no', '--set', '--compiler-flags']:
++        if arg in ['--no', '--set','--opt','--compiler-flags']:
              opt_key = arg[2:].lower()
              sys.argv.remove(arg)
              continue
-@@ -109,6 +96,7 @@
-     def __init__(self, name, sourcedir=''):
-         Extension.__init__(self, name, sources=[])
-         self.sourcedir = os.path.abspath(sourcedir)
-+
- def rmtree(name):
-     """remove a directory and its subdirectories.
-     """
-@@ -130,30 +118,26 @@
-     def get_cmake_version(self):
-         try:
-             out = subprocess.check_output(['cmake', '--version'])
--        except OSError:
--            raise RuntimeError("\n*******************************************************************\n" +
--                                  " CMake must be installed to build the following extensions: " +
--                               ", ".join(e.name for e in self.extensions) + 
--                               "\n*******************************************************************\n")
-+        except:
-+            sys.stderr.write("\nERROR: CMake must be installed to build dlib\n\n") 
-+            sys.exit(1)
-         return re.search(r'version\s*([\d.]+)', out.decode()).group(1)
- 
-     def run(self):
-         cmake_version = self.get_cmake_version()
-         if platform.system() == "Windows":
-             if LooseVersion(cmake_version) < '3.1.0':
--                raise RuntimeError("CMake >= 3.1.0 is required on Windows")
-+                sys.stderr.write("\nERROR: CMake >= 3.1.0 is required on Windows\n\n")
-+                sys.exit(1)
- 
-         for ext in self.extensions:
+@@ -134,10 +150,14 @@ class CMakeBuild(build_ext):
              self.build_extension(ext)
  
      def build_extension(self, ext):
--        extdir = switcher["CMAKE_LIBRARY_OUTPUT_DIRECTORY"]
--        if (extdir==None):
--                extdir = os.path.abspath(os.path.dirname(self.get_ext_fullpath(ext.name)))
--        print("EXTDIR=",extdir)
--        print("Execute with",switcher["PYTHON_EXECUTABLE"]);
-+        extdir = os.path.abspath(os.path.dirname(self.get_ext_fullpath(ext.name)))
-+
+-        extdir = os.path.abspath(os.path.dirname(self.get_ext_fullpath(ext.name)))
++        extdir = switcher["CMAKE_LIBRARY_OUTPUT_DIRECTORY"]
++        if (extdir==None):
++                extdir = os.path.abspath(os.path.dirname(self.get_ext_fullpath(ext.name)))
++        print("EXTDIR=",extdir)
++        print("Execute with",switcher["PYTHON_EXECUTABLE"]);
+ 
          cmake_args = ['-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=' + extdir,
--                      '-DPYTHON_EXECUTABLE=' +  switcher["PYTHON_EXECUTABLE"]]
-+                      '-DPYTHON_EXECUTABLE=' + sys.executable]
+-                      '-DPYTHON_EXECUTABLE=' + sys.executable]
++                      '-DPYTHON_EXECUTABLE=' +  switcher["PYTHON_EXECUTABLE"]]
  
          cmake_args += cmake_extra_options 
  
-@@ -171,10 +155,8 @@
+@@ -155,7 +175,10 @@ class CMakeBuild(build_ext):
              # Do a parallel build
              build_args += ['--', '-j'+str(num_available_cpu_cores(2))]
  
--        build_folder = switcher["CMAKE_TEMP_OUTPUT_DIRECTORY"]
--        if (build_folder==None):
--            build_folder = os.path.abspath(self.build_temp)
--        print("WRITING in",build_folder)
-+        build_folder = os.path.abspath(self.build_temp)
-+
+-        build_folder = os.path.abspath(self.build_temp)
++        build_folder = switcher["CMAKE_TEMP_OUTPUT_DIRECTORY"]
++        if (build_folder==None):
++            build_folder = os.path.abspath(self.build_temp)
++        print("WRITING in",build_folder)
+ 
          if clean_build_folder:
              rmtree(build_folder)
-         if not os.path.exists(build_folder):
-Les sous-répertoires dlib/tools et current/dlib-master/tools sont identiques
