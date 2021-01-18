@@ -81,3 +81,17 @@ index 8e433098..e750fcf4 100644
  
          if clean_build_folder:
              rmtree(build_folder)
+diff --git a/tools/python/CMakeLists.txt b/tools/python/CMakeLists.txt
+index 0b68f53e..3aef7355 100644
+--- a/tools/python/CMakeLists.txt
++++ b/tools/python/CMakeLists.txt
+@@ -34,6 +34,9 @@ endif()
+ if (MSVC)
+     include(${CMAKE_CURRENT_LIST_DIR}/../../dlib/cmake_utils/tell_visual_studio_to_use_static_runtime.cmake)
+ endif()
++set(PYTHON_INCLUDE_DIRS ${MY_TARGET_PYTHON_INCLUDE_DIRS} CACHE INTERNAL "Cross python include path")
++set(PYTHON_MODULE_EXTENSION ".so" CACHE INTERNAL "Cross python lib extension")
++set(PYTHONLIBS_FOUND TRUE CACHE INTERNAL "")
+ 
+ add_subdirectory(../../dlib/external/pybind11 pybind11_build)
+ add_subdirectory(../../dlib dlib_build)
