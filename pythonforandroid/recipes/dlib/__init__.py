@@ -15,16 +15,20 @@ class DlibRecipe(CppCompiledComponentsPythonRecipe):
     version = '19.17'
     url = 'https://github.com/davisking/dlib/archive/v{version}.zip'
 #    url = 'http://dlib.net/files/dlib-{version}.zip'
-    depends = ['Pillow','numpy','scipy','setuptools','conda']
+    depends = ['Pillow','numpy','scipy','setuptools','python2']
 
     built_libraries = {"libdlib.so" : "build/lib.dlib"}
-    patches = ["patchDlibCross.patch"]
+    #    patches = ["patchDlibCross.patch"]
+    patches = ["SETUP.patch"]
 
     def get_recipe_env(self, arch):
         env = super(DlibRecipe, self).get_recipe_env(arch)
         
         env['ANDROID_NDK'] = self.ctx.ndk_dir
         env['ANDROID_SDK'] = self.ctx.sdk_dir
+        #If python3 is 64 bit ,force to build compiler with 64 bits
+        env['CFLAGS'] += "-m64"
+        env['CXXFLAGS'] += "-m64"
         #     import os
         #     for ls in os.environ:
         #         self.env[ls] = os.environ[ls]
@@ -89,12 +93,15 @@ class DlibRecipe(CppCompiledComponentsPythonRecipe):
             lib_dir = join(build_dir,"lib.dlib")
 
             info("Create "+lib_dir)
-            newArgs=[                                                                    
-                "-D P4A=ON" ,                                                        
+            newArgs=[                                                                    #Build with android cross-compiling
+                "-D CMAKE_SYSTEM_NAME=Android" ,                                                        
                 "-D CMAKE_ANDROID_ARCH_ABI={}".format(arch.arch),                               
                 "-D CMAKE_ANDROID_STANDALONE_TOOLCHAIN={}".format(self.ctx.ndk_dir),       
-                "-D ANDROID_NATIVE_API_LEVEL={}".format(self.ctx.ndk_api),          
-                "-D ANDROID_EXECUTABLE={}/tools/android".format(env["ANDROID_SDK"]), 
+                "-D ANDROID_NATIVE_API_LEVEL={}".format(self.ctx.ndk_api),
+                "-D CMAKE_ANDROID_STL_TYPE=c++_shared",
+                "-D CMAKE_SYSTEM_VERSION=24",
+                "-D CMAKE_ANDROID_ARM_NEON=ON",
+                "-D CMAKE_ANDROID_NDK={}".format(env["ANDROID_NDK"]), 
                 "-D CMAKE_TOOLCHAIN_FILE={}".format(                                 
                     join(self.ctx.ndk_dir, "build", "cmake",                         
                          "android.toolchain.cmake")),                                
@@ -103,21 +110,14 @@ class DlibRecipe(CppCompiledComponentsPythonRecipe):
                 "-D CMAKE_SHARED_LINKER_FLAGS=-L{path} -lpython{version}".format(   
                           path=python_link_root,                                          
                           version=python_link_version),                                   
-
-                "-D BUILD_WITH_STANDALONE_TOOLCHAIN=ON",                             
+     
                 #                    # Force to build as shared libraries the dlib"s dependant            
                 #                    # libs or we will not be able to link with our python                
                 "-D BUILD_SHARED_LIBS=ON",                                           
                 "-D BUILD_STATIC_LIBS=OFF",                                          
-                #                    # Disable some dlib"s features                                       
-                #                      "-D BUILD_dlib_java=OFF",                                            
-                #                      "-D BUILD_dlib_java_bindings_generator=OFF",                         
-                #                      "-D BUILD_dlib_highgui=OFF",                                       
-                #                      "-D BUILD_dlib_imgproc=OFF",                                       
-                #                      "-D BUILD_dlib_flann=OFF",                                         
-                                       "-D BUILD_TESTS=OFF",                                                
-                                       "-D BUILD_PERF_TESTS=OFF",                                           
-                                       "-D ENABLE_TESTING=OFF",                                             
+                #                    # Disable some dlib"s features                                                             
+                "-D BUILD_PERF_TESTS=OFF",                                           
+                "-D ENABLE_TESTING=OFF",                                             
                 #                      "-D BUILD_EXAMPLES=OFF",                                             
                 #                      "-D BUILD_ANDROID_EXAMPLES=OFF",                                     
                 #                    # Create sub-directory into build to ouput it                        
@@ -141,7 +141,7 @@ class DlibRecipe(CppCompiledComponentsPythonRecipe):
                     host_python=self.real_hostpython_location),                               
                 "-D PYTHON_INCLUDE_DIRS={include_path}".format(                      
                     include_path=python_include_root),                              
-                "-D PYTHON_LIBRARY={python_lib}".format(                             
+                "-D PYTHON_LIBRARIES={python_lib}".format(                             
                     python_lib=python_library),                                     
                 "-D PYTHON_NUMPY_INCLUDE_DIRS={numpy_include}".format(               
                     numpy_include=python_include_numpy),                            
