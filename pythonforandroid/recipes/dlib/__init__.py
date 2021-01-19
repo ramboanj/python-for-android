@@ -135,7 +135,7 @@ class DlibRecipe(CppCompiledComponentsPythonRecipe):
                     site_packages=python_site_packages),                            
 
                     # Define python"s paths for: exe, lib, includes, numpy...            
-                "-D PYTHON_DEFAULT_EXECUTABLE={}".format(self.real_hostpython_location),       
+                "-D PYTHON_LINK_VERSION={}".format(self.ctx.python_recipe.major_minor_version_string),       
                 "-D PYTHON_EXECUTABLE={host_python}".format(                         
                     host_python=self.real_hostpython_location),                               
                 "-D PYTHON_INCLUDE_DIRS={include_path}".format(                      
