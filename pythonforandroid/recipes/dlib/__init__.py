@@ -18,8 +18,7 @@ class DlibRecipe(CppCompiledComponentsPythonRecipe):
     depends = ['Pillow','numpy','scipy','setuptools','python2']
 
     built_libraries = {"libdlib.so" : "build/lib.dlib"}
-    #    patches = ["patchDlibCross.patch"]
-    patches = ["SETUP.patch"]
+    patches = ["patchDlibCross.patch"]
 
     def get_recipe_env(self, arch):
         env = super(DlibRecipe, self).get_recipe_env(arch)
