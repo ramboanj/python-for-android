@@ -136,14 +136,18 @@ class DlibRecipe(CppCompiledComponentsPythonRecipe):
 
                     # Define python"s paths for: exe, lib, includes, numpy...            
                 "-D PYTHON_LINK_VERSION={}".format(self.ctx.python_recipe.major_minor_version_string),       
-                "-D PYTHON_EXECUTABLE={host_python}".format(                         
+                "-D PYTHON_EXECUTABLE:FILEPATH={host_python}".format(                         
                     host_python=self.real_hostpython_location),                               
-                "-D PYTHON_INCLUDE_DIRS={include_path}".format(                      
-                    include_path=python_include_root),                              
-                "-D PYTHON_LIBRARIES={python_lib}".format(                             
-                    python_lib=python_library),                                     
-                "-D PYTHON_NUMPY_INCLUDE_DIRS={numpy_include}".format(               
-                    numpy_include=python_include_numpy),                            
+                '-D Python{major}_EXECUTABLE:FILEPATH={host_python}'.format(
+                major=python_major, host_python=self.ctx.hostpython),
+                '-D Python{major}_INCLUDE_DIR:PATH={include_path}'.format(
+                    major=python_major, include_path=python_include_root),
+                '-D Python{major}_LIBRARY_RELEASE:FILEPATH={python_lib}'.format(
+                major=python_major, python_lib=python_library),
+                '-D Python{major}_NUMPY_INCLUDE_DIRS={numpy_include}'.format(
+                    major=python_major, numpy_include=python_include_numpy),
+                '-D Python{major}_PACKAGES_PATH={site_packages}'.format(
+                    major=python_major, site_packages=python_site_packages),                     
                 "-D PYTHON_PACKAGES_PATH={site_packages}".format(                    
                     site_packages=python_site_packages)]    
             for arg in newArgs:                                                          
