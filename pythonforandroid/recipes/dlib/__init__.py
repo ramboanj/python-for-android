@@ -144,19 +144,27 @@ class DlibRecipe(CppCompiledComponentsPythonRecipe):
                     major=python_major, include_path=python_include_root),
                 '-D Python{major}_LIBRARY_RELEASE:FILEPATH={python_lib}'.format(
                 major=python_major, python_lib=python_library),
+                '-D PYTHON_INCLUDE_DIRS:INTERNAL={include_path}'.format(
+                    include_path=python_include_root),
+                '-D PYTHON_LIBRARY:FILEPATH={python_lib}'.format(
+                    python_lib=python_library),
                 '-D Python{major}_NUMPY_INCLUDE_DIRS={numpy_include}'.format(
                     major=python_major, numpy_include=python_include_numpy),
                 '-D Python{major}_PACKAGES_PATH={site_packages}'.format(
                     major=python_major, site_packages=python_site_packages),                     
                 "-D PYTHON_PACKAGES_PATH={site_packages}".format(                    
-                    site_packages=python_site_packages)]    
+                    site_packages=python_site_packages)]
+            
+            self.setup_extra_args.append("-G")                               
+            self.setup_extra_args.append("Ninja")                             
             for arg in newArgs:                                                          
                 info(arg)                                                                
                 setArg=arg.split(" ")[1]                                                 
                 self.setup_extra_args.append("--set")                                    
                 self.setup_extra_args.append(setArg)                                     
                 #            self.setup_extra_args.append("--compiler-flags")                                    
-                #            self.setup_extra_args.append(env["CFLAGS"])                                                                                                  
+                #            self.setup_extra_args.append(env["CFLAGS"])
+  
             super().build_arch(arch);
             
 recipe = DlibRecipe()
