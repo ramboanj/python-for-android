@@ -12,7 +12,7 @@ from pythonforandroid.logger import (logger, info, warning, debug, shprint, info
 
 class DlibRecipe(CppCompiledComponentsPythonRecipe):
     site_packages_name = 'dlib'
-    version = '19.17'
+    version = '19.13'
     url = 'https://github.com/davisking/dlib/archive/v{version}.zip'
 #    url = 'http://dlib.net/files/dlib-{version}.zip'
     depends = ['Pillow','numpy','scipy','setuptools','python2']
@@ -26,8 +26,8 @@ class DlibRecipe(CppCompiledComponentsPythonRecipe):
         env['ANDROID_NDK'] = self.ctx.ndk_dir
         env['ANDROID_SDK'] = self.ctx.sdk_dir
         #If python3 is 64 bit ,force to build compiler with 64 bits
-        env['CFLAGS'] += "-m64"
-        env['CXXFLAGS'] += "-m64"
+        env['CFLAGS'] += " -m64"
+        env['CXXFLAGS'] += " -m64"
         #     import os
         #     for ls in os.environ:
         #         self.env[ls] = os.environ[ls]

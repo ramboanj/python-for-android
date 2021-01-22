@@ -1,99 +1,25 @@
-diff --git a/.gitignore b/.gitignore
-index 118d33ef..d7c2618a 100644
---- a/.gitignore
-+++ b/.gitignore
-@@ -15,4 +15,4 @@ docs/docs/cache/
- docs/docs/git-logs.xml
- docs/docs/python/classes.txt
- docs/docs/python/functions.txt
--docs/docs/python/constants.txt
-+
-diff --git a/setup.py b/setup.py
-index 8e433098..e750fcf4 100644
---- a/setup.py
-+++ b/setup.py
-@@ -43,6 +43,14 @@ from setuptools import setup, Extension
- from setuptools.command.build_ext import build_ext
- from distutils.version import LooseVersion
+diff --git a/dlib/external/pybind11/tools/FindPythonLibsNew.cmake b/dlib/external/pybind11/tools/FindPythonLibsNew.cmake
+index b29b287d..9a574333 100644
+--- a/dlib/external/pybind11/tools/FindPythonLibsNew.cmake
++++ b/dlib/external/pybind11/tools/FindPythonLibsNew.cmake
+@@ -113,20 +113,6 @@ list(GET _PYTHON_VALUES 7 PYTHON_LIBRARY_SUFFIX)
+ list(GET _PYTHON_VALUES 8 PYTHON_LIBDIR)
+ list(GET _PYTHON_VALUES 9 PYTHON_MULTIARCH)
  
-+# Example:CMAKE_LIBRARY_OUTPUT_DIRECTORY=#os.path.abspath("build/libdlib")
-+# "CMAKE_TEMP_OUTPUT_DIRECTORY"os.path.abspath("build/tempdlib")
-+switcher={
-+    "PYTHON_EXECUTABLE":sys.executable,
-+    "CMAKE_LIBRARY_OUTPUT_DIRECTORY":None,
-+    "CMAKE_TEMP_OUTPUT_DIRECTORY":None
-+}
-+
- 
- def get_extra_cmake_options():
-     """read --clean, --no, --set, --compiler-flags, and -G options from the command line and add them as cmake switches.
-@@ -63,7 +71,15 @@ def get_extra_cmake_options():
-             _cmake_extra_options.append('-D{arg}=no'.format(arg=arg.strip()))
-         elif opt_key == 'set':
-             _cmake_extra_options.append('-D{arg}'.format(arg=arg.strip()))
-+        elif opt_key == 'opt':
-+            optPy=arg.strip()
-+            print("OPTION=",optPy)
-+            separate=optPy.split("=")
-+            switcher[separate[0]]=' '.join(separate[1:])
-+            print(separate[0],"=",' '.join(separate[1:]))
-+
- 
-+            
-         if opt_key:
-             sys.argv.remove(arg)
-             opt_key = None
-@@ -78,7 +94,7 @@ def get_extra_cmake_options():
-             print("The --yes options to dlib's setup.py don't do anything since all these options ")
-             print("are on by default.  So --yes has been removed.  Do not give it to setup.py.")
-             sys.exit(1)
--        if arg in ['--no', '--set', '--compiler-flags']:
-+        if arg in ['--no', '--set','--opt','--compiler-flags']:
-             opt_key = arg[2:].lower()
-             sys.argv.remove(arg)
-             continue
-@@ -134,10 +150,14 @@ class CMakeBuild(build_ext):
-             self.build_extension(ext)
- 
-     def build_extension(self, ext):
--        extdir = os.path.abspath(os.path.dirname(self.get_ext_fullpath(ext.name)))
-+        extdir = switcher["CMAKE_LIBRARY_OUTPUT_DIRECTORY"]
-+        if (extdir==None):
-+                extdir = os.path.abspath(os.path.dirname(self.get_ext_fullpath(ext.name)))
-+        print("EXTDIR=",extdir)
-+        print("Execute with",switcher["PYTHON_EXECUTABLE"]);
- 
-         cmake_args = ['-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=' + extdir,
--                      '-DPYTHON_EXECUTABLE=' + sys.executable]
-+                      '-DPYTHON_EXECUTABLE=' +  switcher["PYTHON_EXECUTABLE"]]
- 
-         cmake_args += cmake_extra_options 
- 
-@@ -155,7 +175,10 @@ class CMakeBuild(build_ext):
-             # Do a parallel build
-             build_args += ['--', '-j'+str(num_available_cpu_cores(2))]
- 
--        build_folder = os.path.abspath(self.build_temp)
-+        build_folder = switcher["CMAKE_TEMP_OUTPUT_DIRECTORY"]
-+        if (build_folder==None):
-+            build_folder = os.path.abspath(self.build_temp)
-+        print("WRITING in",build_folder)
- 
-         if clean_build_folder:
-             rmtree(build_folder)
-diff --git a/tools/python/CMakeLists.txt b/tools/python/CMakeLists.txt
-index 0b68f53e..3e417c70 100644
---- a/tools/python/CMakeLists.txt
-+++ b/tools/python/CMakeLists.txt
-@@ -34,6 +34,11 @@ endif()
- if (MSVC)
-     include(${CMAKE_CURRENT_LIST_DIR}/../../dlib/cmake_utils/tell_visual_studio_to_use_static_runtime.cmake)
- endif()
-+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-+find_package(Python3 COMPONENTS Interpreter Development REQUIRED)
-+include_directories(${PYTHON_INCLUDE_DIRS})
-+set(PYTHON_MODULE_EXTENSION ".so" CACHE INTERNAL "Cross python lib extension")
-+set(PYTHONLIBS_FOUND TRUE CACHE INTERNAL "")
- 
- add_subdirectory(../../dlib/external/pybind11 pybind11_build)
- add_subdirectory(../../dlib dlib_build)
+-# Make sure the Python has the same pointer-size as the chosen compiler
+-# Skip if CMAKE_SIZEOF_VOID_P is not defined
+-if(CMAKE_SIZEOF_VOID_P AND (NOT "${PYTHON_SIZEOF_VOID_P}" STREQUAL "${CMAKE_SIZEOF_VOID_P}"))
+-    if(PythonLibsNew_FIND_REQUIRED)
+-        math(EXPR _PYTHON_BITS "${PYTHON_SIZEOF_VOID_P} * 8")
+-        math(EXPR _CMAKE_BITS "${CMAKE_SIZEOF_VOID_P} * 8")
+-        message(FATAL_ERROR
+-            "Python config failure: Python is ${_PYTHON_BITS}-bit, "
+-            "chosen compiler is  ${_CMAKE_BITS}-bit")
+-    endif()
+-    set(PYTHONLIBS_FOUND FALSE)
+-    return()
+-endif()
+-
+ # The built-in FindPython didn't always give the version numbers
+ string(REGEX REPLACE "\\." ";" _PYTHON_VERSION_LIST ${_PYTHON_VERSION_LIST})
+ list(GET _PYTHON_VERSION_LIST 0 PYTHON_VERSION_MAJOR)
